@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { productsArr } from "./productStore";
+import { productsArr, getProductData } from "./productStore";
 
 const CartContext = createContext({
     items: [],
@@ -21,7 +21,6 @@ export function CartProvider({ children }) {
         }
         return quantity
     }
-
     addOneToCart = (id) => {
         const quantity = getProductQuantity(id)
         if (quantity === 0) {
@@ -49,7 +48,39 @@ export function CartProvider({ children }) {
         }
 
     }
-
+    deleteFromCart = (id) => {
+        setCartProducts(
+            cartProducts =>
+                cartProducts.filter(product => {
+                    return product.id != id
+                })
+        )
+    }
+    removeOneFromCart = (id) => {
+        const quantity = getProductQuantity(id)
+        if (quantity == 1) {
+            deleteFromCart(id)
+        } else {
+            setCartProducts(
+                cartProducts.map(product => {
+                    product.id === id
+                        ? {
+                            ...product,
+                            quantity: product.quantity - 1
+                        }
+                        : product
+                })
+            )
+        }
+    }
+    getTotalCost = () => {
+        let totalCost = 0
+        cartProducts.map(product => {
+            const productData = getProductData(product.id)
+            totalCost += (productData.price * product.quantity)
+        })
+        return totalCost
+    }
 
     const contextValue = {
         items: cartProducts,
@@ -65,3 +96,6 @@ export function CartProvider({ children }) {
         </CartContext.Provider>
     )
 }
+
+
+export default CartProvider
