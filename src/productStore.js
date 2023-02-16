@@ -1,11 +1,11 @@
 const productsArr = [
     {
-        id: "1",
+        id: "price_1McAgY4beExhVVLKT5nJ50Sb",
         title: "Product1",
         price: 5
     },
     {
-        id: "2",
+        id: "price_1McAh74beExhVVLKAau92Zdp",
         title: "Product2",
         price: 10
     },
