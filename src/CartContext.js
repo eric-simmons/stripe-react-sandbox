@@ -1,85 +1,86 @@
 import { createContext, useState } from "react";
-import { productsArr, getProductData } from "./productStore";
+import { productsArray, getProductData } from "./productStore";
 
-const CartContext = createContext({
+
+export const CartContext = createContext({
     items: [],
     getProductQuantity: () => { },
     addOneToCart: () => { },
     removeOneFromCart: () => { },
     deleteFromCart: () => { },
     getTotalCost: () => { }
-})
+});
 
-export function CartProvider({ children }) {
-    const [cartProducts, setCartProducts] = useState([])
+export const CartProvider = ({ children }) => {
+    const [cartProducts, setCartProducts] = useState([]);
 
-
-    getProductQuantity = (id) => {
-        cartProducts.find(product => product.id === id)?.quantity
+    const getProductQuantity = (id) => {
+        const quantity = cartProducts.find(product => product.id === id)?.quantity;
         if (quantity === undefined) {
-            return 0
+            return 0;
         }
-        return quantity
+        return quantity;
     }
-    addOneToCart = (id) => {
-        const quantity = getProductQuantity(id)
-        if (quantity === 0) {
+
+    const addOneToCart = (id) => {
+        const quantity = getProductQuantity(id);
+
+        if (quantity === 0) { // product is not in cart
             setCartProducts(
                 [
                     ...cartProducts,
                     {
-                        id,
+                        id: id,
                         quantity: 1
                     }
                 ]
             )
         } else {
+
             setCartProducts(
-                cartProducts.map(product => {
-                    product.id === id
-                        ? {
-                            ...product,
-                            quantity: product.quantity + 1
-                        }
-                        : product
-                })
+                cartProducts.map(
+                    product =>
+                        product.id === id
+                            ? { ...product, quantity: product.quantity + 1 }
+                            : product
+                )
             )
-
         }
-
     }
-    deleteFromCart = (id) => {
+
+    const removeOneFromCart = (id) => {
+        const quantity = getProductQuantity(id);
+
+        if (quantity == 1) {
+            deleteFromCart(id);
+        } else {
+            setCartProducts(
+                cartProducts.map(
+                    product =>
+                        product.id === id
+                            ? { ...product, quantity: product.quantity - 1 }
+                            : product
+                )
+            )
+        }
+    }
+
+    const deleteFromCart = (id) => {
         setCartProducts(
             cartProducts =>
-                cartProducts.filter(product => {
-                    return product.id != id
+                cartProducts.filter(currentProduct => {
+                    return currentProduct.id != id;
                 })
         )
     }
-    removeOneFromCart = (id) => {
-        const quantity = getProductQuantity(id)
-        if (quantity == 1) {
-            deleteFromCart(id)
-        } else {
-            setCartProducts(
-                cartProducts.map(product => {
-                    product.id === id
-                        ? {
-                            ...product,
-                            quantity: product.quantity - 1
-                        }
-                        : product
-                })
-            )
-        }
-    }
-    getTotalCost = () => {
-        let totalCost = 0
-        cartProducts.map(product => {
-            const productData = getProductData(product.id)
-            totalCost += (productData.price * product.quantity)
-        })
-        return totalCost
+
+    const getTotalCost = () => {
+        let totalCost = 0;
+        cartProducts.map((cartItem) => {
+            const productData = getProductData(cartItem.id);
+            totalCost += (productData.price * cartItem.quantity);
+        });
+        return totalCost;
     }
 
     const contextValue = {
@@ -90,6 +91,7 @@ export function CartProvider({ children }) {
         deleteFromCart,
         getTotalCost
     }
+
     return (
         <CartContext.Provider value={contextValue}>
             {children}
@@ -97,5 +99,4 @@ export function CartProvider({ children }) {
     )
 }
 
-
-export default CartProvider
+export default CartProvider;
